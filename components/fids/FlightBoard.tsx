@@ -5,15 +5,24 @@ import { FlightRow } from './FlightRow';
 import { LiveClock } from './LiveClock';
 import { useShallow } from 'zustand/react/shallow';
 import { useFlightsStore, selectFilteredFlights } from '@/store/flightsStore';
-import type { Flight, FlightStatus, Terminal } from '@/types';
+import type { Flight, FlightStatus, Terminal, SortableColumn, SortState } from '@/types';
 import { ALL_AIRLINES, ALL_STATUSES, ALL_TERMINALS } from '@/types';
+
+function SortIndicator({ column, sort }: { column: SortableColumn; sort: SortState }) {
+  if (sort.column !== column) return null;
+  return (
+    <span className="ml-0.5 text-amber-400" aria-hidden="true">
+      {sort.direction === 'asc' ? '↑' : '↓'}
+    </span>
+  );
+}
 
 interface FlightBoardProps {
   initialFlights: Flight[];
 }
 
 export function FlightBoard({ initialFlights }: FlightBoardProps) {
-  const { filters, setFilter, setFlights } = useFlightsStore();
+  const { filters, setFilter, setFlights, sort, setSort } = useFlightsStore();
   const flights = useFlightsStore(useShallow(selectFilteredFlights));
 
   useEffect(() => {
@@ -96,10 +105,25 @@ export function FlightBoard({ initialFlights }: FlightBoardProps) {
         <span>Flight</span>
         <span>Airline</span>
         <span>Destination</span>
-        <span className="text-center">Time</span>
-        <span className="text-center">Term.</span>
+        <button
+          onClick={() => setSort('departureTime')}
+          className={`text-center flex items-center justify-center gap-0.5 transition-colors cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-amber-600 rounded-sm ${sort.column === 'departureTime' ? 'text-amber-400' : 'hover:text-amber-400'}`}
+        >
+          Time<SortIndicator column="departureTime" sort={sort} />
+        </button>
+        <button
+          onClick={() => setSort('terminal')}
+          className={`text-center flex items-center justify-center gap-0.5 transition-colors cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-amber-600 rounded-sm ${sort.column === 'terminal' ? 'text-amber-400' : 'hover:text-amber-400'}`}
+        >
+          Term.<SortIndicator column="terminal" sort={sort} />
+        </button>
         <span className="text-center">Gate</span>
-        <span>Status</span>
+        <button
+          onClick={() => setSort('status')}
+          className={`flex items-center gap-0.5 transition-colors cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-amber-600 rounded-sm ${sort.column === 'status' ? 'text-amber-400' : 'hover:text-amber-400'}`}
+        >
+          Status<SortIndicator column="status" sort={sort} />
+        </button>
       </div>
 
       {/* Flights */}

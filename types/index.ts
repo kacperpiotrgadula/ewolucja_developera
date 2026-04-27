@@ -35,3 +35,11 @@ export const ALL_AIRLINES: Airline[] = [
 ];
 
 export const ALL_TERMINALS: Terminal[] = ['T1', 'T2'];
+
+export type SortableColumn = 'departureTime' | 'status' | 'terminal';
+export type SortDirection = 'asc' | 'desc';
+
+export interface SortState {
+  column: SortableColumn | null;
+  direction: SortDirection;
+}

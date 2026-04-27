@@ -1,0 +1,53 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(/mnt/c/**)",
+      "Read(/mnt/e/**)",
+      "Read(/mnt/f/**)",
+      "Read(/home/**)",
+      "Read(/root/**)",
+      "Read(/etc/**)",
+      "Read(/var/**)",
+      "Read(/tmp/**)",
+      "Read(/usr/**)",
+      "Edit(/mnt/c/**)",
+      "Edit(/mnt/e/**)",
+      "Edit(/mnt/f/**)",
+      "Edit(/home/**)",
+      "Edit(/root/**)",
+      "Edit(/etc/**)",
+      "Edit(/var/**)",
+      "Edit(/tmp/**)",
+      "Edit(/usr/**)",
+      "Bash(cd /mnt/c*)",
+      "Bash(cd /home*)",
+      "Bash(cd /root*)",
+      "Bash(cat /mnt/c*)",
+      "Bash(cat /home*)",
+      "Bash(ls /mnt/c*)",
+      "Bash(ls /home*)",
+      "Bash(find / *)",
+      "Bash(find /mnt/c*)",
+      "Bash(rm -rf *)",
+      "WebFetch(*)"
+    ],
+    "allow": [
+      "Read(/mnt/d/ewolucja_developera/**)",
+      "Edit(/mnt/d/ewolucja_developera/**)"
+    ],
+    "defaultMode": "default"
+  },
+  "theme": "dark",
+  "hooks": {
+    "PostCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cat spec.md"
+          }
+        ]
+      }
+    ]
+  }
+}
