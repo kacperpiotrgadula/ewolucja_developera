@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RunwayBriefing - Flight Board Preview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            color: #e0f2fe;
+            overflow-x: hidden;
+        }
+
+        /* Dark mode (default) */
+        body.dark {
+            --bg-primary: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            --bg-secondary: rgba(15, 23, 42, 0.6);
+            --border-color: rgba(34, 211, 238, 0.3);
+            --text-primary: #e0f2fe;
+            --text-secondary: rgba(34, 211, 238, 0.7);
+            --accent: #06b6d4;
+            --row-alt: rgba(51, 65, 85, 0.1);
+        }
+
+        /* Light mode */
+        body.light {
+            --bg-primary: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #f8fafc 100%);
+            --bg-secondary: rgba(241, 245, 249, 0.8);
+            --border-color: rgba(100, 116, 139, 0.3);
+            --text-primary: #0f172a;
+            --text-secondary: rgba(15, 23, 42, 0.7);
+            --accent: #0284c7;
+            --row-alt: rgba(203, 213, 225, 0.2);
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .grid-bg {
+            position: fixed;
+            inset: 0;
+            opacity: 0.05;
+            pointer-events: none;
+            background-image:
+                linear-gradient(90deg, rgba(34,197,94,0.1) 1px, transparent 1px),
+                linear-gradient(0deg, rgba(34,197,94,0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        .glow-top {
+            position: fixed;
+            top: 0;
+            left: 33%;
+            width: 384px;
+            height: 384px;
+            background: radial-gradient(circle, rgba(34, 211, 238, 0.1), transparent);
+            border-radius: 50%;
+            filter: blur(64px);
+            pointer-events: none;
+        }
+
+        .glow-bottom {
+            position: fixed;
+            bottom: 25%;
+            right: 25%;
+            width: 384px;
+            height: 384px;
+            background: radial-gradient(circle, rgba(251, 146, 60, 0.05), transparent);
+            border-radius: 50%;
+            filter: blur(64px);
+            pointer-events: none;
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: linear-gradient(to right, rgba(30, 41, 59, 0.8), rgba(51, 65, 85, 0.8));
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 24px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 0 30px rgba(34, 211, 238, 0.1), inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+
+        .header-title {
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: 0.12em;
+            background: linear-gradient(to right, #06b6d4, #06d6ff, #0ea5e9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-subtitle {
+            font-size: 11px;
+            color: var(--text-secondary);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        .clock {
+            font-size: 28px;
+            font-weight: bold;
+            background: linear-gradient(to right, #06b6d4, #0ea5e9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 20px rgba(34, 211, 238, 0.2);
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 20;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            transition: all 300ms ease;
+        }
+
+        .theme-toggle:hover {
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .filters {
+            background: linear-gradient(to right, rgba(30, 41, 59, 0.4), rgba(51, 65, 85, 0.4));
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px 32px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        select, input {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            font-size: 12px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: all 200ms ease;
+            font-family: inherit;
+            backdrop-filter: blur(10px);
+        }
+
+        select:hover, input:hover {
+            border-color: var(--accent);
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 1px rgba(6, 182, 212, 0.3);
+        }
+
+        .flight-count {
+            margin-left: auto;
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-family: 'Courier New', monospace;
+        }
+
+        .columns {
+            background: linear-gradient(to right, rgba(30, 41, 59, 0.6), rgba(51, 65, 85, 0.4));
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 32px;
+            display: grid;
+            grid-template-columns: 120px 160px 1fr 80px 60px 60px 140px;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 600;
+        }
+
+        .column-header {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .flights {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding: 8px 16px;
+        }
+
+        .flight-row {
+            display: grid;
+            grid-template-columns: 120px 160px 1fr 80px 60px 60px 140px;
+            gap: 8px;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            border-radius: 0;
+            transition: all 300ms ease;
+            font-size: 14px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .flight-row:nth-child(even) {
+            background: linear-gradient(to right, var(--row-alt), transparent);
+        }
+
+        .flight-row:hover {
+            background: linear-gradient(to right, var(--border-color), transparent);
+        }
+
+        .flight-row.cancelled {
+            opacity: 0.6;
+        }
+
+        .flight-row.departed {
+            opacity: 0.7;
+        }
+
+        .flight-number {
+            font-weight: bold;
+            font-size: 16px;
+            color: var(--accent);
+            letter-spacing: 0.08em;
+            text-shadow: 0 0 10px rgba(34, 211, 238, 0.3);
+            animation: glow-pulse 2s ease-in-out infinite;
+        }
+
+        .airline {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-secondary);
+            opacity: 0.8;
+        }
+
+        .destination {
+            letter-spacing: 0.04em;
+        }
+
+        .time {
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+            color: var(--accent);
+            text-shadow: 0 0 8px rgba(34, 211, 238, 0.4);
+        }
+
+        .terminal {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .gate {
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 12px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            border-radius: 4px;
+            min-width: 110px;
+            transition: all 200ms ease;
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .status.on-time {
+            background: linear-gradient(to right, rgba(4, 120, 87, 0.8), rgba(5, 150, 105, 0.6));
+            color: #86efac;
+            border: 1px solid rgba(34, 197, 94, 0.5);
+            box-shadow: 0 0 16px rgba(34, 197, 94, 0.2);
+        }
+
+        .status.boarding {
+            background: linear-gradient(to right, rgba(120, 53, 15, 0.8), rgba(146, 64, 14, 0.6));
+            color: #fcd34d;
+            border: 1px solid rgba(245, 158, 11, 0.5);
+            box-shadow: 0 0 16px rgba(245, 158, 11, 0.2);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .status.delayed {
+            background: linear-gradient(to right, rgba(124, 45, 18, 0.8), rgba(154, 52, 18, 0.6));
+            color: #fdba74;
+            border: 1px solid rgba(249, 115, 22, 0.5);
+            box-shadow: 0 0 16px rgba(249, 115, 22, 0.2);
+        }
+
+        .status.departed {
+            background: linear-gradient(to right, rgba(51, 65, 85, 0.8), rgba(71, 85, 105, 0.6));
+            color: #cbd5e1;
+            border: 1px solid rgba(100, 116, 139, 0.5);
+        }
+
+        .status.cancelled {
+            background: linear-gradient(to right, rgba(127, 29, 29, 0.8), rgba(153, 27, 27, 0.6));
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            box-shadow: 0 0 16px rgba(239, 68, 68, 0.2);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes glow-pulse {
+            0%, 100% { text-shadow: 0 0 10px rgba(34, 211, 238, 0.3); }
+            50% { text-shadow: 0 0 20px rgba(34, 211, 238, 0.6); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        @keyframes flipX {
+            0% { transform: rotateX(0deg) rotateY(0deg); }
+            50% { transform: rotateX(180deg) rotateY(45deg); }
+            100% { transform: rotateX(360deg) rotateY(0deg); }
+        }
+
+        .flight-row.flip {
+            animation: flipX 0.6s cubic-bezier(0.6, 0.04, 0.98, 0.34) !important;
+        }
+
+        .delay-info {
+            color: #fb923c;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 4px;
+        }
+
+        footer {
+            position: fixed;
+            bottom: 16px;
+            right: 16px;
+            z-index: 20;
+        }
+
+        .admin-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: inherit;
+            text-transform: uppercase;
+            transition: all 200ms ease;
+        }
+
+        .admin-btn:hover {
+            background: rgba(6, 182, 212, 0.1);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+    </style>
+</head>
+<body class="dark">
+    <div class="grid-bg"></div>
+    <div class="glow-top"></div>
+    <div class="glow-bottom"></div>
+
+    <button class="theme-toggle" onclick="toggleTheme()">🌙 Dark Mode</button>
+
+    <div class="container">
+        <header>
+            <div>
+                <div class="header-title">✈ RunwayBriefing</div>
+                <div class="header-subtitle">Live Flight Intelligence Display</div>
+            </div>
+            <div class="clock" id="clock">12:34:56</div>
+        </header>
+
+        <div class="filters">
+            <span class="filter-label">🔍 Filter:</span>
+            <select>
+                <option>All Terminals</option>
+                <option>Terminal A</option>
+                <option>Terminal B</option>
+                <option>Terminal C</option>
+            </select>
+            <select>
+                <option>All Airlines</option>
+                <option>United Airlines</option>
+                <option>American Airlines</option>
+                <option>Delta Air Lines</option>
+            </select>
+            <select>
+                <option>All Statuses</option>
+                <option>On Time</option>
+                <option>Boarding</option>
+                <option>Delayed</option>
+            </select>
+            <input type="text" placeholder="Search destination…">
+            <span class="flight-count">8 flights</span>
+        </div>
+
+        <div class="columns">
+            <span class="column-header">✦ Flight</span>
+            <span class="column-header">✦ Airline</span>
+            <span class="column-header">✦ Destination</span>
+            <span class="column-header">✦ Time</span>
+            <span class="column-header">✦ Term</span>
+            <span class="column-header">✦ Gate</span>
+            <span class="column-header">✦ Status</span>
+        </div>
+
+        <div class="flights">
+            <div class="flight-row" onclick="this.classList.toggle('flip')">
+                <span class="flight-number">UA-204</span>
+                <span class="airline">United</span>
+                <span class="destination">New York (JFK)</span>
+                <span class="time">14:30</span>
+                <span class="terminal">A</span>
+                <span class="gate">42</span>
+                <span class="status on-time">On Time</span>
+            </div>
+
+            <div class="flight-row" onclick="this.classList.toggle('flip')">
+                <span class="flight-number">AA-512</span>
+                <span class="airline">American</span>
+                <span class="destination">Los Angeles (LAX)</span>
+                <span class="time">15:00</span>
+                <span class="terminal">B</span>
+                <span class="gate">18</span>
+                <span class="status boarding">Boarding</span>
+            </div>
+
+            <div class="flight-row" onclick="this.classList.toggle('flip')">
+                <span class="flight-number">DL-156</span>
+                <span class="airline">Delta</span>
+                <span class="destination">Miami (MIA)</span>
+                <span class="time">15:45</span>
+                <span class="terminal">C</span>
+                <span class="gate">7</span>
+                <span class="status delayed">Delayed <span class="delay-info">+25m</span></span>
+            </div>
+
+            <div class="flight-row departed" onclick="this.classList.toggle('flip')">
+                <span class="flight-number">SW-89</span>
+                <span class="airline">Southwest</span>
+                <span class="destination">Chicago (ORD)</span>
+                <span class="time">13:15</span>
+                <span class="terminal">A</span>
+                <span class="gate">5</span>
+                <span class="status departed">Departed</span>
+            </div>
+
+            <div class="flight-row" onclick="this.classList.toggle('flip')">
+                <span class="flight-number">BA-214</span>
+                <span class="airline">British</span>
+                <span class="destination">London (LHR)</span>
+                <span class="time">16:20</span>
+                <span class="terminal">T1</span>
+                <span class="gate">B12</span>
+                <span class="status on-time">On Time</span>
+            </div>
+
+            <div class="flight-row" onclick="this.classList.toggle('flip')">
+                <span class="flight-number">AF-302</span>
+                <span class="airline">Air France</span>
+                <span class="destination">Paris (CDG)</span>
+                <span class="time">17:10</span>
+                <span class="terminal">T1</span>
+                <span class="gate">C3</span>
+                <span class="status boarding">Boarding</span>
+            </div>
+
+            <div class="flight-row cancelled" onclick="this.classList.toggle('flip')">
+                <span class="flight-number">LH-411</span>
+                <span class="airline">Lufthansa</span>
+                <span class="destination">Berlin (BER)</span>
+                <span class="time">14:00</span>
+                <span class="terminal">B</span>
+                <span class="gate">—</span>
+                <span class="status cancelled">Cancelled</span>
+            </div>
+
+            <div class="flight-row" onclick="this.classList.toggle('flip')">
+                <span class="flight-number">JL-007</span>
+                <span class="airline">Japan Air</span>
+                <span class="destination">Tokyo (NRT)</span>
+                <span class="time">18:00</span>
+                <span class="terminal">T2</span>
+                <span class="gate">D8</span>
+                <span class="status on-time">On Time</span>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <button class="admin-btn">→ Admin</button>
+    </footer>
+
+    <script>
+        // Update clock
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
+        }
+
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        // Theme toggle
+        function toggleTheme() {
+            const body = document.body;
+            const toggle = document.querySelector('.theme-toggle');
+
+            if (body.classList.contains('dark')) {
+                body.classList.remove('dark');
+                body.classList.add('light');
+                toggle.textContent = '☀️ Light Mode';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.classList.remove('light');
+                body.classList.add('dark');
+                toggle.textContent = '🌙 Dark Mode';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        if (savedTheme === 'light') {
+            document.body.classList.add('light');
+            document.querySelector('.theme-toggle').textContent = '☀️ Light Mode';
+        }
+    </script>
+</body>
+</html>

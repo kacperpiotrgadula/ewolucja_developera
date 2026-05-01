@@ -4,7 +4,21 @@
       "mcp__filesystem__write_file",
       "mcp__filesystem__read_text_file",
       "mcp__filesystem__search_files",
-      "mcp__context7__resolve-library-id"
+      "mcp__context7__resolve-library-id",
+      "mcp__filesystem__directory_tree",
+      "mcp__filesystem__list_directory",
+      "mcp__filesystem__edit_file",
+      "Bash(npm run *)",
+      "Bash(curl -s http://localhost:3000)",
+      "Bash(npm install *)",
+      "Bash(npx next *)",
+      "Bash(npm ci *)",
+      "Bash(npm cache *)",
+      "Bash(curl -s --max-time 3 http://localhost:3000)",
+      "Bash(screen -ls)",
+      "Bash(netstat -tuln)",
+      "Bash(curl -s -m 3 -v http://localhost:3000/)",
+      "Bash(curl -s -m 3 http://127.0.0.1:3000/)"
     ]
   }
 }

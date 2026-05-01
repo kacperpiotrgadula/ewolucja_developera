@@ -20,9 +20,16 @@ export function LiveClock() {
   }, []);
 
   return (
-    <div className="flex items-center gap-2 font-mono text-2xl font-bold text-amber-400">
-      <span className="text-amber-600 text-sm uppercase tracking-widest">Local</span>
-      <span>{time || '--:--:--'}</span>
+    <div className="flex items-center gap-3 font-mono text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent" style={{
+      fontFamily: '"Courier New", monospace',
+      textShadow: '0 0 20px rgba(34, 211, 238, 0.2), 0 0 10px rgba(34, 211, 238, 0.1)'
+    }}>
+      <span className="text-cyan-400/60 text-xs uppercase tracking-wider font-semibold">UTC</span>
+      <span className="font-bold" style={{
+        letterSpacing: '0.05em'
+      }}>
+        {time || '--:--:--'}
+      </span>
     </div>
   );
 }
