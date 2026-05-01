@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "mcp__filesystem__write_file",
-      "mcp__filesystem__read_text_file"
+      "mcp__filesystem__read_text_file",
+      "mcp__filesystem__search_files",
+      "mcp__context7__resolve-library-id"
     ]
   }
 }
